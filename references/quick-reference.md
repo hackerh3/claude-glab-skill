@@ -64,8 +64,8 @@ glab ci run                        # Create or run a new pipeline
 glab ci trigger lint               # Trigger a manual job in an existing pipeline
 glab ci run-trig --token xxxx      # Run a pipeline trigger token flow
 glab ci lint                       # Lint .gitlab-ci.yml
-glab ci retry                      # Retry pipeline
-glab ci cancel                     # Cancel pipeline
+glab ci retry                      # Interactively retry a job
+glab ci cancel pipeline 12345      # Cancel a pipeline
 ```
 
 ## Repository

@@ -89,6 +89,7 @@ rm -rf ~/.claude/skills/glab && git clone <repo> ~/.claude/skills/glab
 - Updated `README.md` and `CONTRIBUTING.md` to reference the maintained fork at `https://github.com/hackerh3/claude-glab-skill` for install and publish guidance.
 - Removed default bash-profile remediation from collateral so local shell guidance stays compatible with the zsh-first workspace.
 - Refreshed `references/quick-reference.md` so host, repo-targeting, CI, API pagination, and shell-completion examples match the hardened workspace guidance and current `glab 1.89.0` help output.
+- Corrected `references/quick-reference.md` so `glab ci retry` is described as job retry and `glab ci cancel` uses the required `pipeline` subcommand form.
 
 ### Planned
 - Additional examples for advanced workflows
