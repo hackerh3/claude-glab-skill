@@ -1,191 +1,67 @@
-# Contributing to the glab Skill
+# Contributing to the glab skill
 
-Thank you for your interest in improving the GitLab CLI skill for Claude Code! This document provides guidelines for contributing.
+Keep contributions narrow, tested, and aligned with the hardened workflow guidance in `SKILL.md`.
 
-## How to Contribute
+## Source of truth
 
-### Reporting Issues
+- Maintained fork: https://github.com/hackerh3/claude-glab-skill
+- GitLab CLI docs root: https://docs.gitlab.com/cli/
 
-If you find errors, missing commands, or unclear instructions:
+When you update install, publish, or support text, point to those locations.
 
-1. Check if the issue already exists in the issue tracker
-2. Provide specific details about the problem
-3. Include the glab version you're using (`glab --version`)
-4. Include examples of commands that don't work as documented
+## What good changes look like
 
-### Suggesting Improvements
+Prefer changes that do one of these:
 
-We welcome suggestions for:
-- Additional glab commands to document
-- New workflow patterns
-- Better examples
-- Clearer explanations
-- Additional troubleshooting scenarios
+- clarify preflight and host-selection behavior
+- correct flags or examples against current `glab --help`
+- add missing negative-path troubleshooting
+- improve repo-targeting guidance for nested GitLab groups
+- remove stale docs paths or GitHub fork references
 
-### Making Changes
+## Writing rules
 
-1. **Test First**: Always test commands with actual glab CLI before documenting
-2. **Follow the Style**: Match the existing writing style (imperative/infinitive form)
-3. **Include Examples**: Provide practical, working examples
-4. **Update References**: If adding major sections, update the quick-reference guide
+- match the concise workflow-first tone already used in `SKILL.md`
+- prefer `zsh` fenced blocks for shell examples in this workspace
+- don't default to bash-specific shell-profile remediation
+- explain why a step matters when it avoids a common failure mode
+- keep examples small and directly runnable
 
-## Style Guidelines
+## Before you open a change
 
-### Writing Style
+1. Verify the documented command shape:
 
-Follow the established imperative/infinitive form:
-- ✅ "To create a merge request, use: `glab mr create`"
-- ❌ "You can create a merge request by using `glab mr create`"
-
-### Code Examples
-
-- Always use proper markdown code fencing with bash syntax highlighting
-- Include comments for complex commands
-- Show expected output when relevant
-- Test all examples before committing
-
-### Organization
-
-The SKILL.md is organized as:
-1. **YAML frontmatter** - Metadata (name, description, allowed-tools)
-2. **Introduction** - What the skill provides
-3. **When to Use** - Invocation scenarios
-4. **Prerequisites** - Setup requirements
-5. **Core Commands** - Organized by feature area
-6. **Workflows** - Complete usage patterns
-7. **Best Practices** - Guidance and recommendations
-8. **Troubleshooting** - Common issues and solutions
-
-When adding content, place it in the appropriate section.
-
-## Testing Changes
-
-Before submitting changes:
-
-1. **Verify YAML frontmatter** is valid:
-   - `name` is lowercase with hyphens only
-   - `description` is clear and under 1024 characters
-   - `allowed-tools` list is appropriate
-
-2. **Test commands** with actual glab CLI:
-   ```bash
-   # Verify glab is installed
+   ```zsh
    glab --version
-
-   # Test commands you've documented
    glab <command> --help
    ```
 
-3. **Check markdown formatting**:
-   - Code blocks are properly fenced
-   - Lists are consistently formatted
-   - Links work correctly
+2. If the text mentions auth or repo context, verify the guidance still matches the current skill rules in `SKILL.md`.
 
-4. **Verify skill loads in Claude Code**:
-   - Place skill in `.claude/skills/glab/`
-   - Restart Claude Code
-   - Test skill invocation
+3. If you touch install or publishing text, confirm it still references the maintained fork.
 
-## What to Update
+4. Update `CHANGELOG.md` when user-facing docs change.
 
-When making changes, consider updating:
+## Files to review together
 
-- **SKILL.md** - Main skill instructions
-- **quick-reference.md** - If adding major commands
-- **README.md** - If changing installation or usage
-- **CHANGELOG.md** - Document your changes
+Changes in one file often need a matching pass in another:
 
-## Commit Guidelines
+- `SKILL.md`, core policy and decision trees
+- `README.md`, install and publish collateral
+- `references/troubleshooting.md`, failure-path recovery
+- `references/quick-reference.md`, concise command lookup
+- `CHANGELOG.md`, user-visible documentation updates
 
-Write clear commit messages:
-- ✅ "Add glab duo commands documentation"
-- ✅ "Fix incorrect flag for glab mr create"
-- ✅ "Update authentication examples"
-- ❌ "Update stuff"
-- ❌ "Fix"
+## Common review checks
 
-## Command Coverage
-
-### Currently Documented
-
-The skill currently covers:
-- Authentication (`glab auth`)
-- Merge Requests (`glab mr`)
-- Issues (`glab issue`)
-- CI/CD (`glab ci`, `glab pipeline`)
-- Repositories (`glab repo`)
-- API (`glab api`)
-- Labels, Releases, Snippets, Users
-
-### Could Use More Coverage
-
-Areas that could be expanded:
-- `glab duo` - GitLab Duo AI features
-- `glab cluster` - Kubernetes cluster management
-- `glab iteration` - Iteration management
-- `glab stack` - Stack management
-- `glab opentofu` - OpenTofu integration
-- Advanced API usage patterns
-- Enterprise GitLab features
-
-## Documentation Standards
-
-### Command Documentation Template
-
-When documenting a new command, use this structure:
-
-```markdown
-### Command Category
-
-#### Basic Usage
-```bash
-# Simple command
-glab command subcommand
-
-# With common flags
-glab command subcommand --flag=value
-```
-
-#### Common Options
-- `--flag1` - Description
-- `--flag2` - Description
-
-#### Examples
-```bash
-# Example 1: Description
-glab command subcommand --example
-
-# Example 2: Description
-glab command subcommand --another-example
-```
-```
-
-## Getting Help
-
-If you have questions:
-1. Check the [glab official documentation](https://docs.gitlab.com/editor_extensions/gitlab_cli/)
-2. Use `glab <command> --help`
-3. Review existing skill documentation patterns
-4. Open an issue for discussion
-
-## Review Process
-
-Changes will be reviewed for:
-- Accuracy of commands and flags
-- Clarity of explanations
-- Consistency with existing style
-- Practical value to users
-- Proper testing
-
-## License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
+- current docs links use `https://docs.gitlab.com/cli/`
+- maintained fork links use `https://github.com/hackerh3/claude-glab-skill`
+- examples don't assume `gitlab.com` as the default workspace host
+- repo examples use namespace-aware or host-qualified `-R/--repo` forms where ambiguity matters
+- troubleshooting covers missing binary, unauthenticated access, wrong host, wrong repo, duplicate MR, and insufficient permissions
 
 ## Resources
 
-- [glab Official Repository](https://gitlab.com/gitlab-org/cli)
-- [GitLab CLI Documentation](https://docs.gitlab.com/editor_extensions/gitlab_cli/)
-- [Claude Code Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
-- [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md)
-
-Thank you for helping make this skill better! 🚀
+- GitLab CLI project: https://gitlab.com/gitlab-org/cli
+- GitLab CLI docs: https://docs.gitlab.com/cli/
+- Claude Code skills docs: https://docs.claude.com/en/docs/claude-code/skills

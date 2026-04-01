@@ -1,247 +1,95 @@
-# GitLab CLI (glab) Skill for Claude Code
+# GitLab CLI `glab` skill
 
-A comprehensive Claude Code skill that provides expert guidance for using the GitLab CLI (`glab`) to manage GitLab resources directly from the command line.
+Focused Claude Code skill for GitLab CLI work in environments that need explicit host, auth, and repo targeting.
 
-## Overview
+## Maintained fork
 
-This skill enables Claude Code to effectively assist with GitLab workflows using the official `glab` CLI tool. It provides detailed knowledge about GitLab operations including merge requests, issues, CI/CD pipelines, repository management, and more.
+Use the maintained fork for installs, updates, and publishing context:
 
-## What This Skill Provides
+- Repository: https://github.com/hackerh3/claude-glab-skill
 
-- **Core workflows**: Common GitLab operations (MRs, issues, CI/CD, repos)
-- **Authentication guidance**: Quick setup for GitLab.com and self-hosted instances
-- **Best practices**: When and how to use glab effectively
-- **Progressive disclosure**: Concise core instructions with detailed references loaded as needed
-- **Comprehensive references**: Detailed command docs, troubleshooting, and quick reference guides
+## What this skill covers
 
-## Installation
+- preflight checks before mutating commands
+- host-aware auth guidance for `gitlab.vi.vector.int` by default
+- repo targeting rules for nested GitLab groups
+- draft-first merge request workflows
+- progressive disclosure references for deeper command help
 
-### Installing the Skill
+## Install the skill
 
-This skill should be placed in your Claude Code skills directory:
+Clone the maintained fork into your Claude Code skills directory:
 
-```bash
-# For project-specific installation
+```zsh
+# project-local install
 mkdir -p .claude/skills
-git clone https://github.com/henricook/claude-glab-skill .claude/skills/glab
+git clone https://github.com/hackerh3/claude-glab-skill .claude/skills/glab
 
-# For personal/global installation
+# personal install
 mkdir -p ~/.claude/skills
-git clone https://github.com/henricook/claude-glab-skill ~/.claude/skills/glab
+git clone https://github.com/hackerh3/claude-glab-skill ~/.claude/skills/glab
 ```
 
-After installation, your directory structure will be:
-```
-.claude/skills/glab/
-├── SKILL.md                          # Core skill (~200 lines, loaded when skill invoked)
-├── references/                       # Detailed docs (loaded only as needed)
-│   ├── commands-detailed.md          # Comprehensive command reference
-│   ├── quick-reference.md            # Command cheat sheet
-│   └── troubleshooting.md            # Detailed error scenarios
-├── README.md
-├── CONTRIBUTING.md
-├── CHANGELOG.md
-└── LICENSE
-```
+## Install `glab`
 
-### Installing glab CLI
+Install the GitLab CLI before using the skill.
 
-Before using this skill, ensure `glab` is installed on your system:
+### macOS
 
-**macOS:**
-```bash
+```zsh
 brew install glab
 ```
 
-**Linux:**
-```bash
-# Debian/Ubuntu
+### Linux
+
+```zsh
 sudo apt install glab
-
-# Fedora/RHEL
-sudo dnf install glab
-
-# Arch Linux
-sudo pacman -S glab
 ```
 
-**Windows:**
+### Windows
+
 ```powershell
-# Using Chocolatey
 choco install glab
-
-# Using Scoop
-scoop install glab
 ```
 
-**From source:**
-```bash
-go install gitlab.com/gitlab-org/cli/cmd/glab@latest
+More install options and upstream CLI docs live at https://docs.gitlab.com/cli/.
+
+## Use the skill
+
+Examples:
+
+```text
+Use the glab skill to check my merge request pipeline
+Use the glab skill to create a draft MR on gitlab.vi.vector.int
+Use the glab skill to inspect issue 123 in group/subgroup/project
 ```
 
-For more installation options, visit: https://gitlab.com/gitlab-org/cli
+## Documentation layout
 
-## Usage
+- `SKILL.md`, core guidance loaded on invocation
+- `references/quick-reference.md`, fast command lookup
+- `references/commands-detailed.md`, deeper flags and command families
+- `references/troubleshooting.md`, negative-path diagnosis and recovery
 
-Once installed, Claude Code will automatically detect when you need GitLab CLI assistance and can invoke this skill. You can also explicitly invoke it:
+## Troubleshooting focus
 
-```
-@claude using the glab skill, help me create a merge request
-```
+The troubleshooting reference now centers on the failure paths that matter most in this workspace:
 
-Or simply ask Claude Code to perform GitLab operations:
+- missing `glab` binary
+- unauthenticated or expired credentials
+- wrong GitLab host
+- wrong repo context
+- duplicate merge requests for the same branch
+- insufficient permissions
 
-```
-Can you list my open merge requests?
-Create an issue for the bug we just found
-Show me the status of the CI pipeline
-```
+It also avoids bash-centric shell advice. If persistence is needed locally, prefer a zsh startup file in this workspace.
 
-## Skill Architecture
+## Publish and maintenance notes
 
-This skill follows the **progressive disclosure design principle** for optimal performance:
-
-### Three-Level Context Loading
-
-1. **SKILL.md frontmatter** (~50 chars) - Loaded first for skill discovery and invocation
-2. **SKILL.md body** (~200 lines) - Core workflows and patterns loaded when skill is invoked
-3. **references/** folder - Detailed documentation loaded into context only as needed
-
-### SKILL.md (Core Instructions)
-The main skill file is concise and focused on:
-- When to use glab for different tasks
-- Essential authentication setup
-- Common workflow patterns (not exhaustive command lists)
-- Best practices and quick fixes
-- References to detailed documentation
-
-**Why it's concise:** Loads quickly when invoked, providing immediate guidance without overwhelming context.
-
-### references/ (Detailed Documentation)
-
-**commands-detailed.md** - Load when:
-- User needs specific flag or option details
-- Working with advanced commands (API, variables, schedules)
-- Need comprehensive command examples
-
-**troubleshooting.md** - Load when:
-- Encountering authentication or connection errors
-- Debugging CI/CD pipeline issues
-- Need detailed error scenarios and solutions
-
-**quick-reference.md** - Load when:
-- User wants a command cheat sheet
-- Quick lookup of common flags and patterns
-
-### Tool Restrictions
-The skill is configured with `allowed-tools: Bash, Read, Grep, Glob` to ensure Claude Code can:
-- Execute glab commands via Bash
-- Read configuration and reference files as needed
-- Search for relevant files and patterns
-- Work within the repository context
-
-## Skill Features
-
-### Workflow-First Approach
-
-Rather than memorizing commands, the skill teaches:
-- **Creating merge requests** with reviewers and labels
-- **Reviewing code** by checking out MRs locally
-- **Managing issues** and linking them to MRs
-- **Monitoring CI/CD** pipelines and handling failures
-
-### Comprehensive Command Coverage
-
-30+ glab commands documented across:
-- Merge Requests, Issues, CI/CD Pipelines
-- Repositories, API access, Labels, Releases
-- Snippets, Users, Variables, SSH Keys
-- And more (see references/commands-detailed.md)
-
-### Context-Aware Assistance
-
-The skill helps Claude Code:
-- Detect when authentication is needed
-- Identify repository context issues
-- Suggest appropriate flags and options
-- Load detailed docs only when necessary
-
-### Self-Hosted GitLab Support
-
-Full support for GitLab.com and self-hosted instances with environment variable configuration and multi-instance authentication.
-
-## Examples
-
-After installation, Claude Code can help with tasks like:
-
-**Creating a merge request:**
-```
-Create a merge request for my current branch with the title "Fix login bug" and assign it to reviewers alice and bob
-```
-
-**Reviewing merge requests:**
-```
-Show me all merge requests where I'm assigned as a reviewer
-```
-
-**Managing CI/CD:**
-```
-Watch the current pipeline and let me know if it passes
-```
-
-**Working with issues:**
-```
-Create a bug issue titled "API timeout" with high priority label
-```
-
-## Configuration
-
-The skill automatically adapts to:
-- Current repository context
-- Authenticated GitLab instances
-- Self-hosted GitLab via GITLAB_HOST environment variable
-- Multiple authentication profiles
+- Keep references aligned with the maintained fork: https://github.com/hackerh3/claude-glab-skill
+- Point GitLab CLI docs at https://docs.gitlab.com/cli/
+- Treat `gitlab.vi.vector.int` as the default workspace host unless a task explicitly targets another instance
 
 ## Contributing
 
-This skill is designed to be comprehensive and up-to-date. If you find commands or workflows that should be added, please contribute:
-
-1. Test your additions with actual glab usage
-2. Follow the imperative/infinitive writing style established in SKILL.md
-3. Include practical examples
-4. Update this README if adding major new sections
-
-## Requirements
-
-- Claude Code with Skills support
-- glab CLI tool installed and in PATH
-- Authenticated GitLab account (via `glab auth login`)
-- Git repository context for repository-specific operations
-
-## Troubleshooting
-
-If Claude Code doesn't recognize the skill:
-1. Verify the skill is in `.claude/skills/glab/` or `~/.claude/skills/glab/`
-2. Ensure SKILL.md exists and has valid YAML frontmatter
-3. Restart Claude Code if necessary
-
-If glab commands fail:
-1. Verify installation: `glab --version`
-2. Check authentication: `glab auth status`
-3. Ensure you're in a Git repository or use `-R owner/repo` flag
-
-## Resources
-
-- **glab Official Repository**: https://gitlab.com/gitlab-org/cli
-- **GitLab CLI Documentation**: https://docs.gitlab.com/editor_extensions/gitlab_cli/
-- **Claude Code Skills**: https://docs.claude.com/en/docs/claude-code/skills
-
-## License
-
-This skill is provided as a community resource for Claude Code users working with GitLab.
-
-## Version
-
-Version: 1.0.0
-Last Updated: November 2025
-Compatible with: glab v1.40.0+
+See `CONTRIBUTING.md` for documentation rules, testing expectations, and release-note updates.

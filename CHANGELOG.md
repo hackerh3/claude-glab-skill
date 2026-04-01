@@ -82,6 +82,14 @@ rm -rf ~/.claude/skills/glab && git clone <repo> ~/.claude/skills/glab
 
 ## [Unreleased]
 
+### Fixed
+- Aligned `glab api` guidance with verified CLI help, keeping pagination in endpoint query strings, clarifying `--field` versus `--raw-field` versus `--input`, and tightening GraphQL pagination caveats.
+- Rewrote `references/troubleshooting.md` around workspace-first failure paths: missing binary, unauthenticated access, wrong host, wrong repo, duplicate merge request, and insufficient permissions.
+- Replaced stale legacy GitLab CLI docs-path references with `https://docs.gitlab.com/cli/` in user-facing collateral.
+- Updated `README.md` and `CONTRIBUTING.md` to reference the maintained fork at `https://github.com/hackerh3/claude-glab-skill` for install and publish guidance.
+- Removed default bash-profile remediation from collateral so local shell guidance stays compatible with the zsh-first workspace.
+- Refreshed `references/quick-reference.md` so host, repo-targeting, CI, API pagination, and shell-completion examples match the hardened workspace guidance and current `glab 1.89.0` help output.
+
 ### Planned
 - Additional examples for advanced workflows
 - More coverage of `glab duo` AI features
