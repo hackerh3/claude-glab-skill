@@ -279,7 +279,7 @@ glab ci trigger 224356863 --pipeline-id 991122
 glab ci run-trig --token xxxx --branch develop
 glab ci run-trig --token xxxx --variables DEPLOY_ENV:staging
 
-# Retry a failed job
+# Retry a job
 glab ci retry
 
 # Retry a specific job by ID or job name
