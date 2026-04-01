@@ -76,11 +76,11 @@ glab mr create --remove-source-branch
 
 ### Viewing and Interacting with MRs
 ```bash
-# View MR details (opens in browser by default)
+# View MR details in the terminal
 glab mr view 123
 
-# View MR in terminal
-glab mr view 123 --web=false
+# Open MR in browser
+glab mr view 123 --web
 
 # View MR with comments
 glab mr view 123 --comments
@@ -279,17 +279,18 @@ glab ci trigger 224356863 --pipeline-id 991122
 glab ci run-trig --token xxxx --branch develop
 glab ci run-trig --token xxxx --variables DEPLOY_ENV:staging
 
-# Retry failed pipeline
+# Retry a failed job
 glab ci retry
 
-# Retry specific pipeline
-glab ci retry <pipeline-id>
+# Retry a specific job by ID or job name
+glab ci retry <job-id>
+glab ci retry lint
 
-# Cancel running pipeline
-glab ci cancel
+# Cancel a specific job
+glab ci cancel job <job-id>
 
-# Cancel specific pipeline
-glab ci cancel <pipeline-id>
+# Cancel a specific pipeline
+glab ci cancel pipeline <pipeline-id>
 ```
 
 ### CI Configuration
