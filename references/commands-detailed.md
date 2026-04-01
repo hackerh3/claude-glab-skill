@@ -12,6 +12,9 @@ glab mr list --assignee=@me
 # List MRs where you're a reviewer
 glab mr list --reviewer=@me
 
+# Check whether the current branch already has an MR
+glab mr list --source-branch=$(git branch --show-current)
+
 # List all open MRs
 glab mr list
 
@@ -22,6 +25,22 @@ glab mr list --state=all
 ```
 
 ### Creating Merge Requests
+
+Before `glab mr create`, check whether the source branch already has an MR:
+
+```bash
+glab mr list --source-branch=$(git branch --show-current)
+```
+
+If one exists, inspect or update it instead of creating a duplicate:
+
+```bash
+glab mr view <mr-number>
+glab mr update <mr-number> --draft
+```
+
+Keep new MRs draft-first in this workspace.
+
 ```bash
 # Create MR from current branch (interactive)
 glab mr create
@@ -29,11 +48,11 @@ glab mr create
 # Create MR with title and description
 glab mr create --title "Fix bug" --description "Fixes issue #123"
 
-# Create MR for specific issue
-glab mr create 123
-
 # Create draft MR
 glab mr create --draft
+
+# Create draft MR for a related issue
+glab mr create --draft --related-issue 123
 
 # Create MR and assign reviewers
 glab mr create --reviewer=username1,username2
@@ -46,6 +65,10 @@ glab mr create --assignee=username
 
 # Create MR to a specific target branch
 glab mr create --target-branch=develop
+
+# Create MR from commit info and skip prompts
+# Note: --fill also sets push=true and pushes the branch.
+glab mr create --fill --draft
 
 # Create MR and remove source branch after merge
 glab mr create --remove-source-branch
@@ -98,6 +121,9 @@ glab mr update 123 --draft
 # Mark MR as ready (remove draft status)
 glab mr update 123 --ready
 
+# Refresh title and description from commit info
+glab mr update 123 --fill --fill-commit-body --yes
+
 # Subscribe to MR notifications
 glab mr subscribe 123
 
@@ -148,6 +174,9 @@ glab issue create --title "Feature request" --label="enhancement,feature"
 # Create issue with assignee
 glab issue create --title "Fix bug" --assignee=username
 
+# Create issue linked to an MR
+glab issue create --title "Backport follow-up" --linked-mr 123
+
 # Create confidential issue
 glab issue create --title "Security issue" --confidential
 
@@ -189,8 +218,8 @@ glab issue unsubscribe 456
 
 ### Viewing Pipelines
 ```bash
-# Watch pipeline in progress (interactive)
-glab pipeline ci view
+# Show available CI commands first
+glab ci --help
 
 # List recent pipelines
 glab ci list
@@ -203,17 +232,19 @@ glab ci list --status=running
 # View specific pipeline status
 glab ci status
 
-# View pipeline for specific branch
-glab ci status --branch=main
+# View pipeline for a specific branch or ref
+glab ci status --branch=develop
 
-# Get pipeline trace/logs
+# Trace job logs from the latest matching pipeline
 glab ci trace
 
-# Get trace for specific job
+# Trace a specific job by ID or job name
 glab ci trace <job-id>
+glab ci trace lint
 
-# View pipeline details
-glab ci view <pipeline-id>
+# View the current pipeline for a branch or tag
+glab ci view
+glab ci view v1.2.3
 
 # Delete a pipeline
 glab ci delete <pipeline-id>
@@ -221,17 +252,32 @@ glab ci delete <pipeline-id>
 
 ### Triggering and Managing Pipelines
 ```bash
-# Run/trigger pipeline
+# Create a new pipeline on the current branch
 glab ci run
 
 # Run pipeline for specific branch
 glab ci run --branch=develop
 
-# Run pipeline with variables
-glab ci run --variables-file /tmp/variables.json
+# Run merge request pipeline instead of branch pipeline
+glab ci run --mr
 
-# Run pipeline with inline variables
-glab ci run -V KEY1=value1 -V KEY2=value2
+# Run pipeline with variables from the environment-style flag
+glab ci run --variables-env KEY1:value1 --variables-env KEY2:value2
+
+# Run pipeline with file and JSON-backed variables
+glab ci run --variables-file CONFIG:.env.production
+glab ci run --variables-from variables.json
+
+# Run pipeline with typed inputs
+glab ci run --input replicas:int(3) --input debug:bool(false)
+
+# Trigger a manual job in an existing pipeline
+glab ci trigger lint
+glab ci trigger 224356863 --pipeline-id 991122
+
+# Create a pipeline with a pipeline trigger token
+glab ci run-trig --token xxxx --branch develop
+glab ci run-trig --token xxxx --variables DEPLOY_ENV:staging
 
 # Retry failed pipeline
 glab ci retry
@@ -251,8 +297,12 @@ glab ci cancel <pipeline-id>
 # Lint .gitlab-ci.yml file in current directory
 glab ci lint
 
-# Lint specific file
-glab ci lint --path=.gitlab-ci.yml
+# Lint a specific file path
+glab ci lint .gitlab-ci.yml
+glab ci lint path/to/.gitlab-ci.yml
+
+# Simulate pipeline creation for a ref
+glab ci lint --dry-run --ref develop --include-jobs
 
 # View CI configuration
 glab ci config
@@ -268,30 +318,38 @@ glab ci artifact <job-id> -p path/to/download
 
 ### Cloning Repositories
 ```bash
-# Clone repository
-glab repo clone namespace/project
+# Clone a repository by namespace path
+glab repo clone group/subgroup/project
 
 # Clone to specific directory
-glab repo clone namespace/project target-dir
+glab repo clone group/subgroup/project target-dir
+
+# Clone by full URL or project ID
+glab repo clone https://gitlab.vi.vector.int/group/subgroup/project
+glab repo clone 4356677
 
 # Clone from self-hosted GitLab
-GITLAB_HOST=gitlab.example.org glab repo clone groupname/project
+GITLAB_HOST=gitlab.vi.vector.int glab repo clone group/subgroup/project
 
-# Clone repository by group (interactive)
+# Clone repositories from a group
 glab repo clone -g groupname
+glab repo clone -g groupname --archived=false --paginate
 
-# Clone with specific protocol
-glab repo clone namespace/project --protocol=ssh
-glab repo clone namespace/project --protocol=https
+# Pass native git clone flags after --
+glab repo clone group/subgroup/project -- --branch develop --depth 1
 ```
+
+Notes:
+- `glab repo clone` uses the configured protocol. Do not invent a `--protocol` flag when the current help output does not show one.
+- Only mention automatic `upstream` remote creation when cloning a fork the current authenticated user owns, because that side effect is conditional.
 
 ### Repository Information and Management
 ```bash
 # View repository details
 glab repo view
 
-# View specific repository
-glab repo view owner/repo
+# View a specific repository
+glab repo view group/subgroup/project
 
 # View in browser
 glab repo view --web
@@ -309,16 +367,26 @@ glab repo archive owner/project
 glab repo unarchive owner/project
 
 # Delete repository
-glab repo delete owner/project
+glab repo delete project [group/subgroup/]
 
 # Create repository
 glab repo create project-name
+
+# Create repository under a group or namespace path
+glab repo create group/subgroup/project-name
 
 # Create private repository
 glab repo create project-name --private
 
 # Create repository with description
 glab repo create project-name --description "My project"
+
+# Set an explicit default branch when that matters
+glab repo create project-name --defaultBranch develop
+
+# Create on a specific host
+GITLAB_HOST=gitlab.vi.vector.int glab repo create project-name
+glab repo create gitlab.vi.vector.int/group/subgroup/project-name
 
 # Mirror repository
 glab repo mirror source-repo target-repo
@@ -327,6 +395,17 @@ glab repo mirror source-repo target-repo
 ## API Access
 
 ### Making API Calls
+
+Keep these API rules straight before reaching for examples:
+
+- Default method is `GET` when no parameters are added, and `POST` otherwise. `--field` and `--raw-field` count as parameters, so force `--method` when the default would be misleading.
+- Keep pagination controls inside the endpoint string, for example `?page=2&per_page=100`. Do not document a `glab api --per-page` pattern.
+- Use `--raw-field key=value` for string values as typed.
+- Use `--field key=value` when you want type inference. It can coerce booleans, `null`, and integers, fill repository placeholders such as `:branch`, and read values from `@file` or `@-`.
+- Use `--input <file>` for a raw request body. In that mode, `--field` values are serialized into URL query parameters instead of the JSON body.
+- For GraphQL, fields other than `query` and `operationName` become variables.
+- Mention GraphQL `--paginate` only when the query accepts `$endCursor` and fetches `pageInfo { hasNextPage endCursor }` from the paginated collection.
+
 ```bash
 # GET request
 glab api projects/:id/merge_requests
@@ -334,14 +413,25 @@ glab api projects/:id/merge_requests
 # GET with specific project ID
 glab api projects/12345/merge_requests
 
-# POST request with data
+# GET with explicit query-string pagination
+glab api "projects/:id/issues?page=2&per_page=100"
+
+# Auto-paginate REST results, keep per_page in the endpoint string
+glab api --paginate "projects/:id/merge_requests?per_page=50&state=opened"
+
+# POST request with inferred JSON types
 glab api --method POST projects/:id/issues --field title="Bug report"
 
-# POST with multiple fields
+# POST with multiple inferred fields
 glab api --method POST projects/:id/issues \
   --field title="Bug" \
   --field description="Description here" \
   --field labels="bug,priority:high"
+
+# POST with exact string fields
+glab api --method POST projects/:id/issues \
+  --raw-field title="Bug" \
+  --raw-field labels="bug,priority:high"
 
 # PUT request
 glab api --method PUT projects/:id/merge_requests/1 --field title="New Title"
@@ -349,23 +439,26 @@ glab api --method PUT projects/:id/merge_requests/1 --field title="New Title"
 # DELETE request
 glab api --method DELETE projects/:id/issues/123
 
-# Paginated API request (auto-fetches all pages)
-glab api --paginate projects/:id/issues
-
-# Pagination with query parameters (specify per_page in URL)
+# GET with query-string pagination only
 glab api "projects/:id/issues?per_page=100"
 
-# Combine pagination flag with query parameters
-glab api --paginate "projects/:id/merge_requests?per_page=50&state=opened"
+# Send a raw body from file
+glab api --method POST --input issue.json projects/:id/issues
 
-# Manual pagination (specific page)
-glab api "projects/:id/issues?page=2&per_page=100"
+# Raw body plus URL query parameters from --field
+glab api --method POST --input body.json --field sudo=root projects/:id/issues
 
 # Include response headers
 glab api --include projects/:id
 
 # Silent mode (no progress)
 glab api --silent projects/:id/merge_requests
+
+# GraphQL request, query stays a string
+glab api graphql --raw-field query='query { currentUser { username } }'
+
+# GraphQL pagination needs $endCursor and pageInfo in the query
+glab api graphql --paginate --raw-field query='query($endCursor: String) { project(fullPath: "gitlab-org/graphql-sandbox") { issues(first: 2, after: $endCursor) { nodes { title } pageInfo { endCursor hasNextPage } } } }'
 ```
 
 ## Labels
@@ -545,7 +638,7 @@ glab schedule delete <schedule-id>
 Most glab commands support these common flags:
 
 - `--help`, `-h` - Show help for command
-- `--repo`, `-R` - Specify repository (format: OWNER/REPO)
+- `--repo`, `-R` - Specify repository, usually `group/subgroup/project`, and some commands also accept full URL or Git URL
 - `--web`, `-w` - Open in web browser
 - `--output`, `-o` - Output format (json, text, etc.)
 - `--verbose` - Enable verbose output
